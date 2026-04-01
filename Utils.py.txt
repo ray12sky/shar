@@ -1,0 +1,20 @@
+import pandas as pd
+
+def load_data():
+    try:
+        return pd.read_csv("medications.csv")
+    except:
+        return pd.DataFrame(columns=["Name", "Dosage", "Time"])
+
+def save_data(df):
+    df.to_csv("medications.csv", index=False)
+
+def check_interaction(med1, med2):
+    interactions = {
+        ("Aspirin", "Ibuprofen"): "⚠️ May increase risk of stomach bleeding",
+        ("Paracetamol", "Alcohol"): "⚠️ Liver damage risk",
+    }
+
+    if (med1, med2) in interactions or (med2, med1) in interactions:
+        return interactions.get((med1, med2)) or interactions.get((med2, med1))
+    return "✅ No known interaction"

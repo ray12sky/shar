@@ -1,0 +1,50 @@
+import streamlit as st
+import pandas as pd
+from utils import load_data, save_data, check_interaction
+
+st.set_page_config(page_title="Medication Tracker", layout="centered")
+
+st.title("💊 Virtual Lab: Medication Tracker")
+
+df = load_data()
+
+# ➕ Add Medication
+st.header("Add Medication")
+
+name = st.text_input("Medication Name")
+dosage = st.text_input("Dosage")
+time = st.time_input("Time")
+
+if st.button("Add"):
+    new_data = pd.DataFrame([[name, dosage, str(time)]],
+                            columns=["Name", "Dosage", "Time"])
+    df = pd.concat([df, new_data], ignore_index=True)
+    save_data(df)
+    st.success("Medication Added!")
+
+# 📋 View Medications
+st.header("Your Medications")
+st.dataframe(df)
+
+# ⚠️ Drug Interaction Checker
+st.header("Check Drug Interaction")
+
+med1 = st.selectbox("Select first medication", df["Name"].unique())
+med2 = st.selectbox("Select second medication", df["Name"].unique())
+
+if st.button("Check Interaction"):
+    result = check_interaction(med1, med2)
+    st.info(result)
+
+# ⏰ Reminder Simulation
+st.header("Reminder")
+
+current_time = st.time_input("Current Time")
+
+due_meds = df[df["Time"] == str(current_time)]
+
+if not due_meds.empty:
+    st.warning("⏰ Time to take your medication!")
+    st.dataframe(due_meds)
+else:
+    st.success("No medications due right now")
